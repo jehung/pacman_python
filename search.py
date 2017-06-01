@@ -17,10 +17,10 @@ class SearchProblem:
   """
   This class outlines the structure of a search problem, but doesn't implement
   any of the methods (in object-oriented terminology: an abstract class).
-  
+
   You do not need to change anything in this class, ever.
   """
-  
+
   def getStartState(self):
      """
      Returns the start state for the search problem 
@@ -57,6 +57,72 @@ class SearchProblem:
      util.raiseNotDefined()
            
 
+class Node:
+    """A node in a search tree. Contains a pointer to the parent (the node
+    that this is a successor of) and to the actual state for this node. Note
+    that if a state is arrived at by two paths, then there are two nodes with
+    the same state.  Also includes the action that got us to this state, and
+    the total path_cost (also known as g) to reach the node.  Other functions
+    may add an f and h value; see best_first_graph_search and astar_search for
+    an explanation of how the f and h values are handled. You will not need to
+    subclass this class."""
+
+    def __init__(self, state, parent=None, action=None, path_cost=0):
+        """Create a search tree Node, derived from a parent by an action."""
+        self.state = state
+        self.parent = parent
+        self.action = action
+        self.path_cost = path_cost
+        self.depth = 0
+        if parent:
+            self.depth = parent.depth + 1
+
+    def __repr__(self):
+        return "<Node {}>".format(self.state)
+
+    def __lt__(self, node):
+        return self.state < node.state
+
+    def expand(self, problem):
+        """List the nodes reachable in one step from this node."""
+        child_list = []
+		for child in problem.getSuccessors(self.state)[0]]:
+			child_list.apend(child)
+		return child_list
+
+    def child_node(self, problem):
+        """[Figure 3.10]"""
+        next = problem.getSuccessors(self.state)
+        return Node(next[0], self.state, parent=node, action=next[1], path_cost=next[2])
+		
+		
+		
+    def solution(self):
+        """Return the sequence of actions to go from the root to this node."""
+        return [node.action for node in self.path()[1:]]
+
+    def path(self):
+        """Return a list of nodes forming the path from the root to this node."""
+        node, path_back = self, []
+        while node:
+            path_back.append(node)
+            node = node.parent
+        return list(reversed(path_back))
+
+    # We want for a queue of nodes in breadth_first_search or
+    # astar_search to have no duplicated states, so we treat nodes
+    # with the same state as equal. [Problem: this may not be what you
+    # want in other contexts.]
+
+    def __eq__(self, other):
+        return isinstance(other, Node) and self.state == other.state
+
+    def __hash__(self):
+        return hash(self.state)
+
+		
+		
+		
 def tinyMazeSearch(problem):
   """
   Returns a sequence of moves that solves tinyMaze.  For any other
@@ -83,21 +149,80 @@ def depthFirstSearch(problem):
   print "Is the start a goal?", problem.isGoalState(problem.getStartState())
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  node = problem.getStartState()
+  explored = set()
+  if problem.isGoalState(node):
+      return node
+  frontier = Stack()
+  frontier.append(node)
+  explored = set()
+  while frontier:
+      node = frontier.pop()
+      explored.add(node.state)
+      for child in node.expand(problem):
+          if child.state not in explored and child not in frontier:
+              if problem.goal_test(child.state):
+                  return child
+              frontier.append(child)
+  return None
+
 
 def breadthFirstSearch(problem):
   """
   Search the shallowest nodes in the search tree first.
   [2nd Edition: p 73, 3rd Edition: p 82]
   """
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
-      
+  node = problem.getStartState()
+  if problem.isGoalState(node):
+      return node
+  frontier = Queue()
+  frontier.append(node)
+  explored = set()
+  while frontier:
+      node = frontier.pop()
+      explored.add(node.state)
+      for child in node.expand(problem):
+          if child.state not in explored and child not in frontier:
+              if problem.goal_test(child.state):
+                  return child
+              frontier.append(child)
+  return None
+
+
+
+def f_function(node):
+	return node.path_cost
+  
+  
 def uniformCostSearch(problem):
-  "Search the node of least total cost first. "
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+	"Search the node of least total cost first. "
+	node = porblem.getStartState()
+	if problem.isGoalState(node.state):
+		return node
+	frontier = PriorityQueueWithFunction()
+	explored = set()
+    
+    while frontier:
+        node = frontier.pop()	 
+		if problem.isGoalState(node.state):
+			return node
+		explored.add(node.state)	
+		for child in node.expand(probelm):
+			if child.state not in explored and child not in frontier:
+				frontier.append(child)
+		    elif child in frontier:
+				incumbent = frontier[child]
+                if f_function(child) < f_dunction(incumbent):
+                    del frontier[incumbent]
+                    frontier.append(child)
+    return None
+				
+			
+		
+		
+  
+  
+  
 
 def nullHeuristic(state, problem=None):
   """
@@ -113,7 +238,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     
   
 # Abbreviations
-bfs = breadthFirstSearch
-dfs = depthFirstSearch
-astar = aStarSearch
-ucs = uniformCostSearch
+
+problem = SearchProblem()
+bfs = breadthFirstSearch(problem)
+#dfs = depthFirstSearch(problem)
+print bfs
+#astar = aStarSearch(problem)
+#ucs = uniformCostSearch(problem)
