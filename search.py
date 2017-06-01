@@ -190,8 +190,12 @@ def breadthFirstSearch(problem):
 
 
 
-def f_function(node):
+def path_cost_function(node):
 	return node.path_cost
+  
+  
+def total_cost_function(node, goal):
+	return node.path_cost + util.manhattanDistance(node, goalstate)
   
   
 def uniformCostSearch(problem):
@@ -212,17 +216,12 @@ def uniformCostSearch(problem):
 				frontier.append(child)
 		    elif child in frontier:
 				incumbent = frontier[child]
-                if f_function(child) < f_dunction(incumbent):
+                if path_cost_function(child) < path_cost_function(incumbent):
                     del frontier[incumbent]
                     frontier.append(child)
     return None
 				
-			
-		
-		
-  
-  
-  
+	
 
 def nullHeuristic(state, problem=None):
   """
@@ -231,10 +230,30 @@ def nullHeuristic(state, problem=None):
   """
   return 0
 
+  
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  node = porblem.getStartState()
+	if problem.isGoalState(node.state):
+		return node
+	frontier = PriorityQueueWithFunction()
+	explored = set()
+    
+    while frontier:
+        node = frontier.pop()	 
+		if problem.isGoalState(node.state):
+			return node
+		explored.add(node.state)	
+		for child in node.expand(probelm):
+			if child.state not in explored and child not in frontier:
+				frontier.append(child)
+		    elif child in frontier:
+				incumbent = frontier[child]
+                if total_cost_function(child) < total_cost_function(incumbent):
+                    del frontier[incumbent]
+                    frontier.append(child)
+    return None
+	
     
   
 # Abbreviations
